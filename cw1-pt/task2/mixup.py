@@ -1,7 +1,5 @@
 import torch
 import numpy as np
-import torchvision
-#import matplotlib.pyplot as plt
 
 class MixUp:
     def __init__(self, alpha, sampling_method):
@@ -43,13 +41,3 @@ class MixUp:
         mixed_labels = lambdaInput * y + (1 - lambdaInput) * y[perm]
 
         return mixed_images, mixed_labels
-
-    #def visualize_mixUp(self, images, save_path='mixup.png'):
-        # Assuming images is a batch of 16 images
-        _, mixed_labels = self.mixUp(images, images)  # Dummy labels, not used here
-        grid_img = torchvision.utils.make_grid(mixed_labels, nrow=4)
-        npimg = grid_img.numpy()
-        plt.figure(figsize=(8, 8))
-        plt.imshow(np.transpose(npimg, (1, 2, 0)))
-        plt.axis('off')
-        plt.savefig(save_path)
