@@ -126,7 +126,7 @@ def generate_data(w, num_samples, noise_std=0.5):
     return x, t
 
 def main():
-    # Polynomial coefficients and noise standard deviation
+    ## Polynomial coefficients and noise standard deviation
     w_true = torch.tensor([1, 2, 3], dtype=torch.float32)
     noise_std = 0.5
 
@@ -139,11 +139,11 @@ def main():
 
     for M in degrees:
         # Fit the polynomial to the training data
-        weights_opt = fit_polynomial_ls(x_train, t_train, M)
+        w_opt_ls = fit_polynomial_ls(x_train, t_train, M)
 
         # Predict on training and test sets
-        y_train_pred = polynomial_fun(weights_opt, x_train)
-        y_test_pred = polynomial_fun(weights_opt, x_test)
+        y_train_pred = polynomial_fun(w_opt_ls, x_train)
+        y_test_pred = polynomial_fun(w_opt_ls, x_test)
 
     # Calculate the true values without noise for comparison
     y_true_train = polynomial_fun(w_true.float(), x_train)
@@ -188,7 +188,7 @@ def main():
     ## BETWEEN LEAST SQUARES AND SGD
     print("\n---- ACCURACY COMPARISON (RMSE) between Least Squares and SGD ----")
     for M in degrees:
-        y_test_pred_ls = polynomial_fun(weights_opt, x_test)
+        y_test_pred_ls = polynomial_fun(w_opt_ls, x_test)
         y_test_pred_sgd = polynomial_fun(w_opt_sgd, x_test)
 
         rmse_ls = torch.sqrt(torch.mean((y_test_pred_ls - y_true_test)**2))
@@ -199,7 +199,7 @@ def main():
     print("\n---- SPEED COMPARISON ----")
     for M in degrees:
         start_time_ls = time.time()
-        weights_opt = fit_polynomial_ls(x_train, t_train, M)
+        w_opt_ls = fit_polynomial_ls(x_train, t_train, M)
         time_ls = time.time() - start_time_ls
 
         start_time_sgd = time.time()

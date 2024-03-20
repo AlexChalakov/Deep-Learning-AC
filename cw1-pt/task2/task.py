@@ -65,7 +65,7 @@ def train_MixUp(net, trainloader, testloader, criterion, optimizer, epochs, alph
 
         # Print accuracy
         accuracy = 100 * correct / total
-        print(f'Accuracy of the network on the 1000 test images: {accuracy:.2f} %')
+        print(f'Accuracy of the network on the test images: {accuracy:.2f} %')
 
     print('Finished Training')
 
