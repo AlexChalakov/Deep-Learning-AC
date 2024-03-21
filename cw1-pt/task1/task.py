@@ -101,6 +101,7 @@ def fit_polynomial_sgd(x,t,M, learning_rate, batch_size):
         # Report loss
         print(f"Batch {batch + 1}/{num_batches}, Loss: {loss.item()}")
 
+    # Returns a new Tensor, detached from the current graph.
     return w.detach()
 
 def generate_data(w, num_samples, noise_std=0.5):
@@ -160,7 +161,6 @@ def main():
     mean_diff_train_pred_true = diff_train_pred_true.mean().item()
     std_diff_train_pred_true = diff_train_pred_true.std().item()
 
-    #print(f"Degree M={M}:")
     print("\n---- Comparison ----")
     print(f"Observed vs. True on Training: Mean Diff = {mean_diff_train_observed_true:.4f}, StdDev = {std_diff_train_observed_true:.4f}")
     print(f"LS-Predicted vs. True on Training: Mean Diff = {mean_diff_train_pred_true:.4f}, StdDev = {std_diff_train_pred_true:.4f}")
@@ -187,14 +187,14 @@ def main():
     ## RMSE VALUES AND SPEED COMPARISON
     ## BETWEEN LEAST SQUARES AND SGD
     print("\n---- ACCURACY COMPARISON (RMSE) between Least Squares and SGD ----")
-    for M in degrees:
-        y_test_pred_ls = polynomial_fun(w_opt_ls, x_test)
-        y_test_pred_sgd = polynomial_fun(w_opt_sgd, x_test)
+    #for M in degrees:
+    y_test_pred_ls = polynomial_fun(w_opt_ls, x_test)
+    y_test_pred_sgd = polynomial_fun(w_opt_sgd, x_test)
 
-        rmse_ls = torch.sqrt(torch.mean((y_test_pred_ls - y_true_test)**2))
-        rmse_sgd = torch.sqrt(torch.mean((y_test_pred_sgd - y_true_test)**2))
+    rmse_ls = torch.sqrt(torch.mean((y_test_pred_ls - y_true_test)**2))
+    rmse_sgd = torch.sqrt(torch.mean((y_test_pred_sgd - y_true_test)**2))
 
-        print(f"Degree M={M}: LS RMSE = {rmse_ls:.4f}, SGD RMSE = {rmse_sgd:.4f}")
+    print(f"LS RMSE = {rmse_ls:.4f}, SGD RMSE = {rmse_sgd:.4f}")
 
     print("\n---- SPEED COMPARISON ----")
     for M in degrees:

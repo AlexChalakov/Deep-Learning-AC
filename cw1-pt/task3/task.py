@@ -5,7 +5,6 @@ import torchvision
 from torchvision import transforms
 from torch.utils.data import DataLoader, random_split
 import time
-import torchvision.transforms.functional as F
 
 from network_pt import MyVisionTransformer
 from mixup import MixUp  
@@ -14,6 +13,25 @@ from mixup import MixUp
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def train_MixUp(net, trainloader, valloader, holdoloader, criterion, optimizer, epochs, alpha, sampling_method, device):
+    """
+    Basically the main function where all the magic happens.
+    It is responsible for training, validating and testing the network with MixUp. 
+
+    Args:
+        net: The network model
+        trainloader: The training dataset
+        valloader: The validation dataset
+        holdoloader: The holdout test dataset
+        criterion: The loss function
+        optimizer: The optimizer
+        epochs: The number of epochs
+        alpha: The alpha value for MixUp
+        sampling_method: The sampling method for MixUp
+        device: The device to run the model on
+
+    Returns:
+        Epoch loss, accuracy, speed, validation loss, validation accuracy, test loss, test accuracy
+    """
     net.train()
 
     for epoch in range(epochs):
@@ -40,7 +58,7 @@ def train_MixUp(net, trainloader, valloader, holdoloader, criterion, optimizer, 
             optimizer.step()
 
             # Print every batch for testing
-            print(f'Batch [{i+1}/{len(trainloader)}], Loss: {loss.item():.4f}')
+            #print(f'Batch [{i+1}/{len(trainloader)}], Loss: {loss.item():.4f}')
 
             running_loss += loss.item()
             _, predicted = torch.max(outputs.data, 1)
@@ -73,7 +91,7 @@ def train_MixUp(net, trainloader, valloader, holdoloader, criterion, optimizer, 
         # Print accuracy and loss on the validation set
         val_mean_loss = val_running_loss / len(valloader)
         val_accuracy = 100 * val_correct / val_total
-        print(f'Validation Loss: {val_mean_loss:.2f}, Validation Accuracy: {val_accuracy:.2f} %')
+        print(f'Validation Loss: {val_mean_loss:.4f}, Validation Accuracy: {val_accuracy:.2f} %')
 
         # Test the network w/ the holdout test set
         test_correct = 0
@@ -93,10 +111,9 @@ def train_MixUp(net, trainloader, valloader, holdoloader, criterion, optimizer, 
         # Print accuracy and loss on the holdout test set
         test_mean_loss = test_running_loss / len(holdoloader)
         test_accuracy = 100 * test_correct / test_total
-        print(f'Test Loss: {test_mean_loss:.2f}, Test Accuracy: {test_accuracy:.2f} %')
+        print(f'Test Loss: {test_mean_loss:.4f}, Test Accuracy: {test_accuracy:.2f} %')
 
     print('Finished Training, Validating and Testing!')
-    print('Task 3 complete')
 
 def main():
     # Integrate the training and testing code from tutorial here
@@ -110,7 +127,6 @@ def main():
     # Random split the dataset into development set (80%) and holdout test set (20%).
     dataset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transform)
     length = len(dataset)
-    testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=transform)
 
     development_size = int(0.8 * length)
     holdout_size = length - development_size
@@ -136,10 +152,10 @@ def main():
     # Train with MixUp for both sampling methods
     for sampling_method in [1, 2]:
         print(f"\nTraining with sampling method {sampling_method}")
-        # Train with MixUp - EPOCH IS 1 FOR TESTING
+        # Train with MixUp - EPOCH IS 1 For this task
         train_MixUp(net, trainloader, valloader, holdoloader, criterion, optimizer, epochs=1, alpha=0.4, sampling_method=sampling_method, device=device)
         # Save the model
-        torch.save(net.state_dict(), f'vit_mixup_sampling_method_{sampling_method}.pt')
+        torch.save(net.state_dict(), f'ablation_study_{sampling_method}.pt')
 
 if __name__ == "__main__":
     main()

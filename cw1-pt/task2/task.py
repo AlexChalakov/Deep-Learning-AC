@@ -77,6 +77,7 @@ def main():
         transforms.Resize((224, 224)),
         transforms.ToTensor(),
         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+        #transforms.Normalize((0.4914, 0.4822, 0.4465), (0.247, 0.243, 0.261)) apparently correct normalizations for cifar10
     ])
 
     # Create test set
@@ -95,7 +96,7 @@ def main():
     images, labels = next(dataiter)
     mixup = MixUp(alpha=0.4, sampling_method=1)
     mixed_images, _,= mixup.mixUp(images, labels)
-    visualize_mixup(mixed_images)
+    visualize_mixup(mixed_images[:16])
 
     # Call ViT network
     net = MyVisionTransformer()  
@@ -116,19 +117,19 @@ def main():
 
     # Visualising results with printed messages
     # indicating the ground-truth and the predicted classes for each.
-    dataiter(testloader)
+    dataiter = iter(testloader)
     images, labels = next(dataiter)
     classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
-    im = Image.fromarray((torch.cat(images.split(1,0),3).squeeze()/2*255+.5*255).permute(1,2,0).numpy().astype('uint8'))
+    im = Image.fromarray((torch.cat(images.split(1,0)[:36], 3).squeeze() / 2 * 255 + 0.5 * 255).permute(1, 2, 0).numpy().astype('uint8'))
     im.save("result.png")
 
     # Print ground truth labels
-    print('GroundTruth: ', ' '.join('%5s' % classes[labels[j]] for j in range(4)))
+    print('GroundTruth: ', ' '.join('%5s' % classes[labels[j]] for j in range(36)))
 
     # Print predicted labels
     outputs = net(images)
     _, predicted = torch.max(outputs, 1)
-    print('Predicted: ', ' '.join('%5s' % classes[predicted[j]] for j in range(4)))
+    print('Predicted: ', ' '.join('%5s' % classes[predicted[j]] for j in range(36)))
 
 if __name__ == "__main__":
     main()

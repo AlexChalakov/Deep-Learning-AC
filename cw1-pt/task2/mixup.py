@@ -36,8 +36,8 @@ class MixUp:
         lambdaInput = self.lambda_options()
 
         # Permuting the batch to mix with
-        perm = torch.randperm(batch_size).to(x.device)
-        mixed_images = lambdaInput * x + (1 - lambdaInput) * x[perm]
+        perm = torch.randperm(batch_size)
+        mixed_images = lambdaInput * x + (1 - lambdaInput) * x[perm,:]
         mixed_labels = lambdaInput * y + (1 - lambdaInput) * y[perm]
 
         return mixed_images, mixed_labels
