@@ -1,3 +1,4 @@
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -6,21 +7,50 @@ from torchvision import transforms
 from torch.utils.data import DataLoader
 from PIL import Image
 import torchvision.transforms.functional as F
+import multiprocessing
 
 from network_pt import MyVisionTransformer
-from mixup import MixUp  
+from mixup import MixUp 
 
-# Setup device
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# Models were tested on UCL Linux machines so should be runnable on Ubuntu
+# Models were saved onto task2 folder file, 
+# however, they are not included in the submission as they exceed the size limit of 500 MB
+# AS INSTRUCTED, models are available at the following OneDrive link:
+# https://liveuclac-my.sharepoint.com/:f:/g/personal/ucaba73_ucl_ac_uk/EtWBQ4i92cdLkZHGKaAAZM0BmXPONq5QSdXLeVl366iETg?e=MuJbGW
+
+# You are free to rerun the code to generate the models if you wish to do so.
+
+# device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def visualize_mixup(images, filename='mixup.png'):
-    # Assuming `images` is a batch of mixed images from MixUp
+    """
+    Visualise the MixUp images by saving to a PNG file “mixup.png”,
+    a montage of 16 images with randomly augmented images that are about to be fed into network training.
+    """
     # Create a grid of images
     img_grid = torchvision.utils.make_grid(images, nrow=4)
     img_grid = F.to_pil_image(img_grid)
     img_grid.save(filename)
 
 def train_MixUp(net, trainloader, testloader, criterion, optimizer, epochs, alpha, sampling_method, device):
+    """
+    Basically the main function where all the magic happens.
+    It is responsible for training, validating and testing the network with MixUp. 
+
+    Args:
+        net: The network model
+        trainloader: The training dataset
+        testloader: The test dataset
+        criterion: The loss function
+        optimizer: The optimizer
+        epochs: The number of epochs
+        alpha: The alpha value for MixUp
+        sampling_method: The sampling method for MixUp
+        device: The device to run the model on
+
+    Returns:
+        Epoch loss and accuracy
+    """
     net.train()
     for epoch in range(epochs):
         running_loss = 0.0
@@ -71,6 +101,19 @@ def train_MixUp(net, trainloader, testloader, criterion, optimizer, epochs, alph
 
 
 def main():
+    # Set up device
+    multiprocessing.set_start_method('spawn', force=True)
+
+    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+    if(torch.cuda.is_available()):
+        torch.cuda.set_device(device)
+        torch.set_default_tensor_type(torch.cuda.FloatTensor if device.type == 'cuda' else torch.FloatTensor)
+
+    generator = torch.Generator(device)
+    generator.manual_seed(np.random.randint(0,1000)) 
+
+    print("Using device:", device)
+
     # Integrate the training and testing code from tutorial here
     # then run it through the MixUp algorithm and the ViT model and print the results
     transform = transforms.Compose([
@@ -109,7 +152,7 @@ def main():
     # Train with MixUp for both sampling methods
     for sampling_method in [1, 2]:
         print(f"\nTraining with sampling method {sampling_method}")
-        print(batches)
+        # print(batches)
         # Train with MixUp - EPOCH IS 1 FOR TESTING
         train_MixUp(net, trainloader, testloader, criterion, optimizer, epochs=1, alpha=0.4, sampling_method=sampling_method, device=device)
         # Save model

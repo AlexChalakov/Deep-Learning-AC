@@ -5,9 +5,18 @@ import torchvision
 from torchvision import transforms
 from torch.utils.data import DataLoader, random_split
 import time
+import multiprocessing
 
 from network_pt import MyVisionTransformer
 from mixup import MixUp  
+
+# Models were tested on UCL Linux machines so should be runnable on Ubuntu
+# Models were saved onto task2 folder file, 
+# however, they are not included in the submission as they exceed the size limit of 500 MB
+# AS INSTRUCTED, models are available at the following OneDrive link:
+# https://liveuclac-my.sharepoint.com/:f:/g/personal/ucaba73_ucl_ac_uk/EtWBQ4i92cdLkZHGKaAAZM0BmXPONq5QSdXLeVl366iETg?e=MuJbGW
+
+# You are free to rerun the code to generate the models if you wish to do so.
 
 # Setup device
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -116,6 +125,9 @@ def train_MixUp(net, trainloader, valloader, holdoloader, criterion, optimizer, 
     print('Finished Training, Validating and Testing!')
 
 def main():
+    # Set up device
+    multiprocessing.set_start_method('spawn', force=True)
+
     # Integrate the training and testing code from tutorial here
     # then run it through the MixUp algorithm and the ViT model and print the results
     transform = transforms.Compose([
